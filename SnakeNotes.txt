@@ -1,0 +1,15 @@
+Javascript Snake
+1) Have a surface to "draw" on.
+	a) Define the surface as a grid
+	b) Ensure grid size and cell width is variable
+	c) Draw "cells" to my grid of chooseable colour
+2) Data structures for in game objects
+	a) How to represent the snake (array/list)
+		i) 0th element = head, last element = tail
+	   ii) each array item is one snake segment (x, y, colour)
+	b) How to represent apple (x, y, colour)
+3) Handle time updates (frame limiting etc)
+4) Handle keyboard inputs 
+5) Game Logic
+6) Effects/Sounds/Extras
+7) Polish!
