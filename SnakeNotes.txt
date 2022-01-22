@@ -11,5 +11,17 @@ Javascript Snake
 3) Handle time updates (frame limiting etc)
 4) Handle keyboard inputs 
 5) Game Logic
-6) Effects/Sounds/Extras
-7) Polish!
+	a) Snake can grow when colliding with an apple
+	b) Apple can randomly choose a new valid position
+	c) The game will end when the snake collides with the wall/itself
+6) Menu/New Game
+	a) Menu to start the game
+	b) Loop back to "menu" after game over, to start a new game
+7) Effects
+	a) Improved look graphically (textures, gradients)
+8) Sounds
+	a) Apple crunch
+9) Extras
+	a) Scores
+	b) Snake speed varys based on score
+10) Polish/Refactor

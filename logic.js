@@ -76,33 +76,37 @@ class Snake {
 
     return 0;
   }
+
+  // TODO - Randomise snake start position
+  setRandomStart() {
+    
+  }
 }
 
 class Apple {
   constructor() {
-    this.cell = new Cell(Math.floor(Math.random() * gridRenderer.cellCountX),
-                         Math.floor(Math.random() * gridRenderer.cellCountY),
-                         "#FF0000");
+    this.cell = new Cell(0, 0,"#FF0000");
+    this.moveToRandomPosition();
   }
 
   moveToRandomPosition() { 
     let isValidPosition = true;
     do {
       isValidPosition = true;
-      this.cell.x = Math.floor(Math.random() * gridRenderer.cellCountX);
-      this.cell.y = Math.floor(Math.random() * gridRenderer.cellCountY);
+      this.cell.x = Math.floor(Math.random() * renderer.cellCountX);
+      this.cell.y = Math.floor(Math.random() * renderer.cellCountY);
     
       snake.segments.forEach(element => {
         if (this.cell.x === element.x && this.cell.y === element.y) {
           isValidPosition = false;
         } 
       });
-      console.log("NEW APPLE POSITION =" + apple.cell.x + "," + apple.cell.y);
+      console.log("NEW APPLE POSITION =" + this.cell.x + "," + this.cell.y);
     } while (!isValidPosition)
   }
 }
 
-class GridRenderer {
+class Renderer {
   constructor(cellCountX, cellCountY) {
     const gameCanvas = document.getElementById("gameCanvas");
     this.context = gameCanvas.getContext("2d");
@@ -131,16 +135,24 @@ class GridRenderer {
     });
   }
 
-  printGameOver() {
-    this.context.font = '48px serif';
-    this.context.fillStyle = "#000000";
+  printCenteredText(text, color, size = 48) {
+    this.context.font = size + "px Arial";
+    this.context.fillStyle = color;
     this.context.textAlign = "center";
-    this.context.fillText("Game Over!", 100, 100);
+    this.context.fillText(text, this.width / 2, this.height / 2);
+  }
+
+  printCenteredXText(text, color, y, size = 48) {
+    this.context.font = size + "px Arial";
+    this.context.fillStyle = color;
+    this.context.textAlign = "center";
+    this.context.fillText(text, this.width / 2, y);
   }
 }
 
 function input(e) {
   console.log(e.code);
+  // Translate arrow inputs into snake directions
   switch(e.code) {
     case "ArrowUp":
       snakeDirection = 0;
@@ -153,26 +165,25 @@ function input(e) {
       break;
     case "ArrowRight":
       snakeDirection = 3;
-      break;
+      break;   
+    case "Space":
+      isStartTriggered = true;
     default:
       break;
   }
+  isAnyKeyPressed = true;
 }
 
 function isGameEnded(collision) {
   // Condition - Snake leaves the play area
-  if (snake.segments[0].x < 0 || snake.segments[0].x >= gridRenderer.cellCountX ||
-      snake.segments[0].y < 0 || snake.segments[0].y >= gridRenderer.cellCountY) {
+  if (snake.segments[0].x < 0 || snake.segments[0].x >= renderer.cellCountX ||
+      snake.segments[0].y < 0 || snake.segments[0].y >= renderer.cellCountY) {
     isRunning = false;
   }
 
   // Condition - Snake has collided with itself
   if (collision == 1){
     isRunning = false;
-  }
-
-  if (!isRunning) {
-    gridRenderer.printGameOver();
   }
 }
 
@@ -194,11 +205,17 @@ function update() {
     isGameEnded(collision); // Check for end game conditions
 
     // Clear Canvas
-    gridRenderer.context.clearRect(0, 0, gridRenderer.width, gridRenderer.height);
+    renderer.context.clearRect(0, 0, renderer.width, renderer.height);
 
     // Render Objects
-    gridRenderer.drawCell(apple.cell);
-    gridRenderer.drawArray(snake.segments); 
+    renderer.drawCell(apple.cell);
+    renderer.drawArray(snake.segments); 
+    if (!isRunning) {
+      renderer.printCenteredText("Game Over!", "#FF0000");
+      renderer.printCenteredXText("Press SPACE to start", "#0000FF", (renderer.height/3)*2, 24);
+      isStartTriggered = false;
+      window.requestAnimationFrame(start)
+    }
 
     lag -= frameDuration;
   }
@@ -209,22 +226,42 @@ function update() {
   }
 }
 
+function start() {
+  if (isStartTriggered) {
+    renderer.context.clearRect(0, 0, renderer.width, renderer.height);
+    initialiseNewGame();
+    window.requestAnimationFrame(update);
+  } else {
+    window.requestAnimationFrame(start);
+  }
+}
+
+function initialiseNewGame() {
+  snake = new Snake();
+  apple = new Apple();
+  snakeDirection = 3;  // TODO: Randomise snake start direction
+  startTime = Date.now();
+  isRunning = true;
+}
+
 window.addEventListener("keydown", input);
 
 // Game World Variables
-let gridRenderer = new GridRenderer(10, 10);
-let snake = new Snake();
-let apple = new Apple();
+let renderer = new Renderer(25, 25);
+let snake, apple;
 
 // Runtime Variables
 let snakeDirection = 3;
 let isSnakeGrowing = false;
 let isRunning = true;
+let isStartTriggered = false;
 
 // Timing Variables
-let fps = 3
-let startTime = Date.now(); 
+let fps = 10
+let startTime;
 let frameDuration = 1000 / fps; 
 let lag = 0 // Sum of difference of time passed betwen frames
-window.requestAnimationFrame(update);
 
+renderer.printCenteredText("SNAKE GAME", "#00FF00", 48);
+renderer.printCenteredXText("Press SPACE to start", "#0000FF", (renderer.height/3)*2, 24);
+window.requestAnimationFrame(start);
